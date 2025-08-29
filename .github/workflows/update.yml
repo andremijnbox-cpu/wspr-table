@@ -2,7 +2,7 @@ name: Update WSPR Table
 
 on:
   schedule:
-    - cron: '*/30 * * * *'  # elke 30 minuten
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -10,34 +10,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-         token: ${{ secrets.GH_TOKEN }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
 
-    - name: Install requests
-      run: pip install requests
+      - name: Install dependencies
+        run: pip install requests
 
-    - name: Generate HTML
-      run: python wspr_fetch.py
+      - name: Run script
+        run: python wspr_fetch.py
 
-    - name: Debug Git Status
-      run: |
-        echo "📂 Git status:"
-        git status
-        echo "🧾 Laatste commit:"
-        git log -1 || echo "Geen commits gevonden"
+      - name: Debug:index.html
+        run: |
+          echo "📄 index.html:"
+          head -n 20 index.html || echo "⚠️ index.html niet gevonden"
 
-    - name: Commit and Push HTML
-      run: |
-        git config user.name "andremijnbox-cpu" 
-        git config user.email "andre.mijnbox@gmail.com" 
-        echo "<!-- update: $(date) -->" >> index.html  # forceer wijziging
-        git add index.html
-        git commit -m "Update WSPR HTML" || echo "⚠️ Geen wijzigingen om te committen"
-        git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} main
+      - name: Debug:wspr-table
+        run: |
+          echo "📊 wspr-table:"
+          head -n 20 wspr-table || echo "⚠️ wspr-table niet gevonden"
+
+      - name: Commit and push
+        run: |
+          git config user.name "andremijnbox-cpu"
+          git config user.email "andre.mijnbox@gmail.com"
+          echo "<!-- update: $(date) -->" >> index.html
+          git add index.html
+          git commit -m "Update WSPR HTML" || echo "⚠️ Geen wijzigingen om te committen"
+          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} main

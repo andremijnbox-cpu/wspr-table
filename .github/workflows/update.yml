@@ -35,12 +35,9 @@ jobs:
 
     - name: Commit and Push HTML
       run: |
-       git config user.name "andremijnbox-cpu" 
-       git config user.email "andre.mijnbox@gmail.com" 
-       git fetch origin
-       git checkout gh-pages || git checkout --orphan gh-pages
-       git reset --hard
-       cp index.html .
-       git add index.html
-       git commit -m "Update WSPR HTML" || echo "⚠️ Geen wijzigingen om te committen"
-       git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} gh-pages
+        git config user.name "andremijnbox-cpu" 
+        git config user.email "andre.mijnbox@gmail.com" 
+        echo "<!-- update: $(date) -->" >> index.html  # forceer wijziging
+        git add index.html
+        git commit -m "Update WSPR HTML" || echo "⚠️ Geen wijzigingen om te committen"
+        git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} main

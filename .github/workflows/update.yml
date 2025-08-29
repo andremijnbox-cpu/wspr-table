@@ -41,4 +41,4 @@ jobs:
           echo "<!-- update: $(date) -->" >> index.html
           git add index.html
           git commit -m "Update WSPR HTML" || echo "⚠️ Geen wijzigingen om te committen"
-          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} main
+          git push https://x-access-token:${{ secrets.MY_PAT }}@github.com/${{ github.repository }} main

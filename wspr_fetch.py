@@ -1,4 +1,4 @@
 import requests
 import datetime
 
-CALLSIGN = "PD8GB"
+CALLSIGN = "M0MBO"

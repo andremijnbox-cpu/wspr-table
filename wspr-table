@@ -1,0 +1,74 @@
+import requests
+import datetime
+
+CALLSIGN = "PD8GB"
+MINUTES = 60
+OUTPUT_FILE = "index.html"
+
+# WSPRNet JSON ophalen
+url = "https://www.wsprnet.org/drupal/wsprnet/spots/json"
+params = {"callsign": CALLSIGN, "minutes": MINUTES}
+data = requests.get(url, params=params).json()
+
+# HTML header
+html = f"""<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>WSPR Gegevens - {CALLSIGN}</title>
+<style>
+body {{ background-color: #111; color: #eee; font-family: Arial, monospace; margin:0; padding:0; }}
+h2 {{ text-align:center; color:#0f0; margin:20px 0; }}
+table {{ width:95%; margin:0 auto 20px auto; border-collapse: collapse; }}
+th, td {{ padding:6px 8px; border:1px solid #333; text-align:center; }}
+th {{ background-color:#222; color:#0f0; }}
+tr:nth-child(even) {{ background-color:#1a1a1a; }}
+p.update {{ text-align:center; font-size:12px; color:#888; }}
+</style>
+</head>
+<body>
+
+<h2>WSPR Gegevens - {CALLSIGN}</h2>
+
+<table>
+<thead>
+<tr>
+<th>Datum/Tijd (UTC)</th><th>Call</th><th>Freq (MHz)</th><th>SNR</th><th>Drift</th>
+<th>Loc</th><th>Power</th><th>Reporter</th><th>R-Grid</th><th>Afstand (km)</th><th>Azimuth</th><th>Band</th>
+</tr>
+</thead>
+<tbody>
+"""
+
+# Voeg spots toe
+for spot in data:
+    dt = datetime.datetime.utcfromtimestamp(int(spot["Date"]))
+    html += f"<tr><td>{dt.strftime('%Y-%m-%d %H:%M')}</td>"
+    html += f"<td>{spot.get('CallSign','')}</td>"
+    html += f"<td>{float(spot.get('MHz',0)):.6f}</td>"
+    html += f"<td>{spot.get('dB','')}</td>"
+    html += f"<td>{spot.get('Drift','')}</td>"
+    html += f"<td>{spot.get('Grid','')}</td>"
+    html += f"<td>{spot.get('Power','')}</td>"
+    html += f"<td>{spot.get('Reporter','')}</td>"
+    html += f"<td>{spot.get('ReporterGrid','')}</td>"
+    html += f"<td>{spot.get('distance','')}</td>"
+    html += f"<td>{spot.get('azimuth','')}</td>"
+    html += f"<td>W-2</td></tr>\n"
+
+# HTML afsluiten
+html += f"""
+</tbody>
+</table>
+
+<p class="update">Laatste update: {datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC</p>
+
+</body>
+</html>
+"""
+
+# Schrijf naar index.html
+with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+    f.write(html)
+
+print(f"✅ {OUTPUT_FILE} gegenereerd!")

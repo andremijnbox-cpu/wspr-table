@@ -1,3 +1,4 @@
-git add wspr_fetch.py
-git commit -m "Add WSPR fetch script"
-git push
+import requests
+import datetime
+
+CALLSIGN = "PD8GB"

@@ -12,7 +12,7 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-       with:
+      with:
          token: ${{ secrets.GH_TOKEN }}
 
     - name: Setup Python
@@ -35,8 +35,8 @@ jobs:
 
     - name: Commit and Push HTML
       run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git config user.name "andremijnbox-cpu" 
+        git config user.email "andre.mijnbox@gmail.com" 
         git add index.html
         git commit -m "Update WSPR HTML" || echo "⚠️ Geen wijzigingen om te committen"
         git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}

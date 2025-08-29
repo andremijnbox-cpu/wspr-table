@@ -6,7 +6,7 @@ MINUTES = 60
 OUTPUT_FILE = "index.html"
 
 # WSPRNet JSON ophalen
-url = "https://www.wsprnet.org/drupal/wsprnet/spots/json"
+url = "https://www.wsprnet.org/drupal/wsprnet/spots/"
 params = {"callsign": CALLSIGN, "minutes": MINUTES}
 data = requests.get(url, params=params).json()
 

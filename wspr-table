@@ -1,7 +1,7 @@
 import requests
 import datetime
 
-CALLSIGN = "PD8GB"
+CALLSIGN = "M0MBO"
 MINUTES = 60
 OUTPUT_FILE = "index.html"
 

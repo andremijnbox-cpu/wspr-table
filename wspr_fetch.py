@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 
+FILTER_CALLSIGN = "M0MBO"  # Pas dit aan naar jouw callsign
+
 URL = "https://www.wsprnet.org/drupal/wsprnet/spots"
 
 try:
@@ -17,7 +19,7 @@ html = f"""<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>WSPR Tabel</title>
+    <title>WSPR Tabel voor {FILTER_CALLSIGN}</title>
     <style>
         body {{ font-family: Arial, sans-serif; }}
         table {{ border-collapse: collapse; width: 100%; }}
@@ -26,7 +28,7 @@ html = f"""<!DOCTYPE html>
     </style>
 </head>
 <body>
-    <h1>WSPR Tabel</h1>
+    <h1>WSPR Tabel voor {FILTER_CALLSIGN}</h1>
     <p>Laatste update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
 """
 
@@ -41,12 +43,21 @@ if soup:
             html += f"<th>{h}</th>"
         html += "</tr>\n"
 
-        for line in lines[4:14]:  # Pak de eerste 10 spots
-            cells = [c.strip() for c in line.split("|") if c.strip()]
-            html += "<tr>"
-            for cell in cells:
-                html += f"<td>{cell}</td>"
-            html += "</tr>\n"
+        count = 0
+        for line in lines[4:]:
+            if FILTER_CALLSIGN in line:
+                cells = [c.strip() for c in line.split("|") if c.strip()]
+                html += "<tr>"
+                for cell in cells:
+                    html += f"<td>{cell}</td>"
+                html += "</tr>\n"
+                count += 1
+            if count >= 10:
+                break
+
+        if count == 0:
+            html += f"<tr><td colspan='{len(headers)}'>⚠️ Geen spots gevonden voor {FILTER_CALLSIGN}</td></tr>\n"
+
         html += "</table>\n"
     else:
         html += "<p>⚠️ Geen spotdata gevonden.</p>"

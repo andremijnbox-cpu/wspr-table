@@ -1,9 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import re  # Verplaatst naar boven
 
-FILTER_CALLSIGN = "M0MBO"  # Pas dit aan naar jouw callsign
-
+FILTER_CALLSIGN = "M0MBO"
 URL = "https://www.wsprnet.org/drupal/wsprnet/spots"
 
 try:
@@ -38,15 +38,17 @@ if soup:
     if pre:
         lines = pre.text.strip().split("\n")
         html += "<table>\n<tr>"
-        headers = [h.strip() for h in lines[2].split("|") if h.strip()]
+        headers = re.split(r'\s{2,}|\t+', lines[2].strip())
         for h in headers:
             html += f"<th>{h}</th>"
         html += "</tr>\n"
 
         count = 0
         for line in lines[4:]:
-            if FILTER_CALLSIGN in line:
-                cells = [c.strip() for c in line.split("|") if c.strip()]
+            cells = re.split(r'\s{2,}|\t+', line.strip())
+            if len(cells) < 5:
+                continue
+            if cells[1] == FILTER_CALLSIGN:
                 html += "<tr>"
                 for cell in cells:
                     html += f"<td>{cell}</td>"

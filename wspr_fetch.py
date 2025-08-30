@@ -1,11 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-import re  # Verplaatst naar boven
+import re
 
+# 🔍 Callsign die je wilt filteren
 FILTER_CALLSIGN = "M0MBO"
+
+# 🌐 URL van WSPRnet spotdata
 URL = "https://www.wsprnet.org/drupal/wsprnet/spots"
 
+# 📥 Ophalen van de pagina
 try:
     response = requests.get(URL)
     response.raise_for_status()
@@ -14,7 +18,7 @@ except Exception as e:
     print(f"⚠️ Fout bij ophalen data: {e}")
     soup = None
 
-# HTML-header
+# 🧱 HTML-header
 html = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -32,23 +36,24 @@ html = f"""<!DOCTYPE html>
     <p>Laatste update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
 """
 
-# Zoek en verwerk de tabel
+# 🔍 Verwerken van spotdata
 if soup:
     pre = soup.find("pre")
     if pre:
         lines = pre.text.strip().split("\n")
+
+        # 🏷️ Headers uit eerste regel
+        headers = re.split(r'\s+', lines[0].strip())
         html += "<table>\n<tr>"
-        headers = re.split(r'\s{2,}|\t+', lines[2].strip())
         for h in headers:
             html += f"<th>{h}</th>"
         html += "</tr>\n"
 
+        # 🔎 Filter op callsign
         count = 0
-        for line in lines[4:]:
-            cells = re.split(r'\s{2,}|\t+', line.strip())
-            if len(cells) < 5:
-                continue
-            if cells[1] == FILTER_CALLSIGN:
+        for line in lines[1:]:
+            cells = re.split(r'\s+', line.strip())
+            if FILTER_CALLSIGN in cells:
                 html += "<tr>"
                 for cell in cells:
                     html += f"<td>{cell}</td>"
@@ -66,13 +71,15 @@ if soup:
 else:
     html += "<p>⚠️ Fout bij ophalen van de pagina.</p>"
 
-# HTML-footer
+# 🔚 HTML-footer
 html += """
     <p>Deze pagina is automatisch gegenereerd door GitHub Actions.</p>
 </body>
 </html>
 """
 
-# Schrijf naar index.html
-with open("index.html", "w") as f:
+# 💾 Schrijf naar index.html
+with open("index.html", "w", encoding="utf-8") as f:
     f.write(html)
+
+print("✅ index.html gegenereerd voor callsign:", FILTER_CALLSIGN)

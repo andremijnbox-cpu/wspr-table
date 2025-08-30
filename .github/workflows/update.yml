@@ -34,14 +34,14 @@ jobs:
           echo "📊 wspr-table:"
           head -n 20 wspr-table || echo "⚠️ wspr-table niet gevonden"
 
-      - name: Set remote with token
-        run: git remote set-url origin https://x-access-token:${{ secrets.MY_PAT }}@github.com/${{ github.repository }}
-
-      - name: Commit and push
+      - name: Commit and push with token
+        env:
+          TOKEN: ${{ secrets.MY_PAT }}
         run: |
           git config user.name "andremijnbox-cpu"
           git config user.email "andre.mijnbox@gmail.com"
           echo "<!-- update: $(date) -->" >> index.html
           git add index.html
           git commit -m "Update WSPR HTML" || echo "⚠️ Geen wijzigingen om te committen"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
           git push origin main

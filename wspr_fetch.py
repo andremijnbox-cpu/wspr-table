@@ -3,13 +3,10 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import re
 
-# 🔍 Callsign die je wilt filteren
 FILTER_CALLSIGN = "M0MBO"
-
-# 🌐 URL van WSPRnet spotdata
 URL = "https://www.wsprnet.org/drupal/wsprnet/spots"
 
-# 📥 Ophalen van de pagina
+# Ophalen van de pagina
 try:
     response = requests.get(URL)
     response.raise_for_status()
@@ -18,7 +15,7 @@ except Exception as e:
     print(f"⚠️ Fout bij ophalen data: {e}")
     soup = None
 
-# 🧱 HTML-header
+# HTML-header
 html = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -33,27 +30,27 @@ html = f"""<!DOCTYPE html>
 </head>
 <body>
     <h1>WSPR Tabel voor {FILTER_CALLSIGN}</h1>
-    <p>Laatste update: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+    <p>Laatste update: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC</p>
 """
 
-# 🔍 Verwerken van spotdata
+# Verwerken van spotdata
 if soup:
     pre = soup.find("pre")
     if pre:
         lines = pre.text.strip().split("\n")
 
-        # 🏷️ Headers uit eerste regel
+        # Headers uit eerste regel
         headers = re.split(r'\s+', lines[0].strip())
         html += "<table>\n<tr>"
         for h in headers:
             html += f"<th>{h}</th>"
         html += "</tr>\n"
 
-        # 🔎 Filter op callsign
+        # Filter op callsign
         count = 0
         for line in lines[1:]:
             cells = re.split(r'\s+', line.strip())
-            if FILTER_CALLSIGN in cells:
+            if any(cell == FILTER_CALLSIGN for cell in cells):
                 html += "<tr>"
                 for cell in cells:
                     html += f"<td>{cell}</td>"
@@ -71,14 +68,14 @@ if soup:
 else:
     html += "<p>⚠️ Fout bij ophalen van de pagina.</p>"
 
-# 🔚 HTML-footer
+# HTML-footer
 html += """
     <p>Deze pagina is automatisch gegenereerd door GitHub Actions.</p>
 </body>
 </html>
 """
 
-# 💾 Schrijf naar index.html
+# Schrijf naar index.html
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html)
 
